@@ -56,10 +56,10 @@ export default function App() {
     }
     setPoints(p => p + (MAX_LIVES - wrongCount) * word.length);
     setSavedCount(c => c + 1); // rescued!
-    startNextRound(word, true);
+    startNextRound(word);
   };
 
-  const startNextRound = (justSolved?: string, rescued = false) => {
+  const startNextRound = (justSolved?: string) => {
     const exclude = justSolved ? [...wordsDiscovered, justSolved] : wordsDiscovered;
     const nextWord = getRandomWord(exclude);
     const nextPerson = getRandomPerson([currentPerson.id]); // rotate people for flavor
