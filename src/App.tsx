@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import "./App.css";
+import { Grid} from "@mui/system";
 
-const WORDS = ["HANGMAN", "CARD", "TRUCK", "COMPUTER", "PHONE"] as const;
+const WORDS = ["HANGMAN", "CARD", "TRUCK", "COMPUTER", "PHONE", 'ICE', 'CREAM', 'SUGGAR', 'MOVEMENTS'] as const;
 const MAX_LIVES = 6;
 const A2Z = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i));
 
@@ -26,10 +27,8 @@ function getRandomPerson(excludeIds: string[] = []) {
 }
 
 export default function App() {
-  // Mode selection (Mode 2 scaffolded)
   const [mode, setMode] = useState<GameMode>("CLASSIC");
 
-  // Classic state
   const [wordsDiscovered, setWordsDiscovered] = useState<string[]>([]);
   const [currentWord, setCurrentWord] = useState<string>(() => getRandomWord());
   const [currentPerson, setCurrentPerson] = useState<Person>(() => getRandomPerson());
@@ -41,7 +40,6 @@ export default function App() {
   const [flash, setFlash] = useState<"correct" | "wrong" | "">("");
   const [savedCount, setSavedCount] = useState(0);
 
-  // Derived
   const maskedArray = useMemo(
     () => currentWord.split("").map(ch => (guessed.has(ch) ? ch : "")),
     [currentWord, guessed]
@@ -49,20 +47,19 @@ export default function App() {
   const isWin = currentWord.split("").every(ch => guessed.has(ch));
   const isLose = wrongCount >= MAX_LIVES;
 
-  // Flow
   const setDiscoveredWord = (word: string) => {
     if (!wordsDiscovered.includes(word)) {
       setWordsDiscovered(prev => [...prev, word]);
     }
     setPoints(p => p + (MAX_LIVES - wrongCount) * word.length);
-    setSavedCount(c => c + 1); // rescued!
+    setSavedCount(c => c + 1);
     startNextRound(word);
   };
 
   const startNextRound = (justSolved?: string) => {
     const exclude = justSolved ? [...wordsDiscovered, justSolved] : wordsDiscovered;
     const nextWord = getRandomWord(exclude);
-    const nextPerson = getRandomPerson([currentPerson.id]); // rotate people for flavor
+    const nextPerson = getRandomPerson([currentPerson.id]);
     setCurrentWord(nextWord);
     setCurrentPerson(nextPerson);
     setGuessed(new Set());
@@ -105,87 +102,90 @@ export default function App() {
     }
   };
 
-  const onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
-    if (e.key === "Enter") checkLetter();
-  };
-
-  // UI
   return (
     <div className="app">
       <header className="topbar">
-        <h1>Hangman</h1>
+        
 
-        <div className="mode-switch">
-          <label>Mode:</label>
-          <select
-            value={mode}
-            onChange={(e) => setMode(e.target.value as GameMode)}
-            title="Mode 2 (Save 10) is scaffolded"
-          >
-            <option value="CLASSIC">Classic</option>
-            <option value="SAVE10" disabled>Save 10 (coming soon)</option>
-          </select>
-        </div>
+        <Grid container alignContent={'center'} alignItems={'center'} justifyContent={'center'} spacing={4} gap={4}>
 
-        <div className="stats">
-          <Stat label="Points" value={points} />
-          <Stat label="Saved" value={savedCount} />
-          <Stat label="Deaths" value={deaths} />
-          <Lives livesLeft={Math.max(0, MAX_LIVES - wrongCount)} total={MAX_LIVES} />
-        </div>
+          <Grid size={{ xs: 12, sm: 12, md: 4 }}>
+            <h1>Hangman</h1>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <div className="mode-switch">
+              <label>Mode:</label>
+              <select
+                value={mode}
+                onChange={(e) => setMode(e.target.value as GameMode)}
+                title="Mode 2 (Save 10) is scaffolded"
+              >
+                <option value="CLASSIC">Classic</option>
+                <option value="SAVE10" disabled>Save 10 (coming soon)</option>
+              </select>
+            </div>
+          </Grid>
+          
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <div className="stats">
+              <Stat label="Points" value={points} />
+              <Stat label="Saved" value={savedCount} />
+              <Stat label="Deaths" value={deaths} />
+              <Lives livesLeft={Math.max(0, MAX_LIVES - wrongCount)} total={MAX_LIVES} />
+            </div>
+          </Grid>
+        </Grid>
+
+        
+
+        
       </header>
 
-      <main className="board">
-        <section className="stage">
-          <Gallows
-            wrong={wrongCount}
-            animateSwing={wrongCount > 0 && !isWin && !isLose}
-            rescued={isWin}
-          />
-          <PersonCard person={currentPerson} />
-        </section>
-
-        <section className={`wordcard ${flash ? `flash-${flash}` : ""}`}>
-          <div className="tiles">
-            {maskedArray.map((ch, i) => (
-              <span key={`${currentWord}-${i}`} className={`tile ${ch ? "revealed" : ""}`}>
-                {ch || "\u00A0"}
-              </span>
-            ))}
-          </div>
-
-          <div className="controls">
-            <input
-              aria-label="Type a letter"
-              className="letter-input"
-              placeholder="Type a letter (A–Z)"
-              value={incomingLetter}
-              onChange={(e) => setIncomingLetter(e.target.value.toUpperCase())}
-              onKeyDown={onKeyDown}
-              maxLength={1}
+      <Grid container spacing={4} alignContent={'center'} justifyContent={'center'} direction={'column'}>
+        <Grid size={{ xs: 12, sm: 12, md: 6 }}>
+          <section className="stage">
+            <Gallows
+              wrong={wrongCount}
+              animateSwing={wrongCount > 0 && !isWin && !isLose}
+              rescued={isWin}
             />
-            <button className="btn primary" onClick={() => checkLetter()}>Check</button>
-            <button className="btn ghost" onClick={() => startNextRound()}>New word</button>
-          </div>
-
-          <Keyboard
-            currentWord={currentWord}
-            guessed={guessed}
-            disabled={isWin || isLose}
-            onPick={checkLetter}
-          />
-
-          <div className="history">
-            <strong>Discovered:</strong> {wordsDiscovered.join(", ") || "—"}
-          </div>
-
-          {(isWin || isLose) && (
-            <div className={`banner ${isWin ? "win" : "lose"}`}>
-              {isWin ? `You saved ${currentPerson.name}! 🎉` : `Too late... The word was ${currentWord}.`}
+            <PersonCard person={currentPerson} />
+          </section>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 12, md: 6 }}>
+          <section className={`wordcard ${flash ? `flash-${flash}` : ""}`}>
+            <div className="tiles">
+              {maskedArray.map((ch, i) => (
+                <span key={`${currentWord}-${i}`} className={`tile ${ch ? "revealed" : ""}`}>
+                  {ch || "\u00A0"}
+                </span>
+              ))}
             </div>
-          )}
-        </section>
-      </main>
+
+            <div className="controls text-center">
+              <button className="btn primary" onClick={() => checkLetter()}>Check</button>
+              <button className="btn ghost" onClick={() => startNextRound()}>New word</button>
+            </div>
+
+            <Keyboard
+              currentWord={currentWord}
+              guessed={guessed}
+              disabled={isWin || isLose}
+              onPick={checkLetter}
+            />
+
+            <div className="history">
+              <strong>Discovered:</strong> {wordsDiscovered.join(", ") || "—"}
+            </div>
+
+            {(isWin || isLose) && (
+              <div className={`banner ${isWin ? "win" : "lose"}`}>
+                {isWin ? `You saved ${currentPerson.name}! 🎉` : `Too late... The word was ${currentWord}.`}
+              </div>
+            )}
+          </section>
+        </Grid>
+      </Grid>
 
       <footer className="footer">
         <small className="muted">Classic mode complete. “Save 10” scaffolding ready.</small>
@@ -257,35 +257,29 @@ function Keyboard({
   );
 }
 
-/** SVG gallows + stick figure with simple animations:
- * - swing: slight rocking when wrong > 0
- * - gasp: scale pop on each wrong
- * - rescue: drop to ground & cheer on win
- */
 function Gallows({ wrong, animateSwing, rescued }: { wrong: number; animateSwing: boolean; rescued: boolean }) {
-  // stages: 0..6 used; we keep 6 lives total
+ 
   const show = (n: number) => wrong > n;
 
   return (
     <svg className={`gallows ${animateSwing ? "swing" : ""} ${rescued ? "rescued" : ""}`} viewBox="0 0 200 220" aria-label="Hangman">
-      {/* static frame */}
+    
       <line x1="10" y1="210" x2="190" y2="210" className="svgl" />
       <line x1="40" y1="210" x2="40" y2="20" className="svgl" />
       <line x1="40" y1="20" x2="130" y2="20" className="svgl" />
       <line x1="130" y1="20" x2="130" y2="40" className="svgl" />
 
-      {/* moving group pivoting from the hook */}
       <g className={`dude ${wrong ? "gasp" : ""}`}>
-        {/* rope */}
+      
         {show(0) && <line x1="130" y1="40" x2="130" y2="60" className="svgl part drop" />}
-        {/* head */}
+       
         {show(1) && <circle cx="130" cy="75" r="15" className="svgl part fade" />}
-        {/* body */}
+      
         {show(2) && <line x1="130" y1="90" x2="130" y2="140" className="svgl part fade" />}
-        {/* arms */}
+       
         {show(3) && <line x1="130" y1="105" x2="110" y2="125" className="svgl part fade" />}
         {show(4) && <line x1="130" y1="105" x2="150" y2="125" className="svgl part fade" />}
-        {/* legs */}
+       
         {show(5) && <line x1="130" y1="140" x2="115" y2="165" className="svgl part fade" />}
         {wrong > 6 && <line x1="130" y1="140" x2="145" y2="165" className="svgl part fade" />}
       </g>

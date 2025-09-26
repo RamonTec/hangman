@@ -12,7 +12,7 @@
 }
 
 * { box-sizing: border-box; }
-html, body, #root { height: 100%; }
+
 body {
   margin: 0;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial;
@@ -23,7 +23,7 @@ body {
 .app { max-width: 980px; margin: 0 auto; padding: 24px; }
 
 .topbar {
-  display: flex; align-items: center; justify-content: space-between;
+   align-items: center; justify-content: center; align-content: center;
   gap: 16px; margin-bottom: 16px;
 }
 h1 { margin: 0; letter-spacing: 0.02em; }
@@ -46,15 +46,12 @@ h1 { margin: 0; letter-spacing: 0.02em; }
 .heart { font-size: 18px; opacity: .25; transition: transform .25s ease, opacity .25s ease; }
 .heart.full { opacity: 1; transform: translateY(-1px); color: var(--danger); }
 
-.board { display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px; align-items: start; }
-@media (max-width: 900px) { .board { grid-template-columns: 1fr; } }
 
 .stage {
   background: linear-gradient(180deg, #111523, #0e111b);
   border: 1px solid var(--border);
   border-radius: 16px; padding: 16px;
   box-shadow: 0 10px 30px rgba(0,0,0,.25) inset;
-  display: grid; gap: 10px; place-items: center; min-height: 320px;
 }
 
 /* --- PERSON CARD --- */
@@ -118,7 +115,7 @@ h1 { margin: 0; letter-spacing: 0.02em; }
 }
 .tile.revealed::after { background: transparent; }
 
-.controls { display: flex; gap: 8px; align-items: center; margin: 12px 0 8px; }
+.controls { display: flex; justify-content: center; align-items: center; }
 .letter-input {
   width: 120px; padding: 10px 12px; border-radius: 10px;
   border: 1px solid var(--border); background: #0f1320; color: var(--text);
